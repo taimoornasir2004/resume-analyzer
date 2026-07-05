@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { buildFeedbackPrompt, buildChatSystemContext } from "../shared/promptBuilders.js";
 
 dotenv.config();
 
@@ -80,27 +81,6 @@ app.post("/api/chat", async (req, res) => {
     res.status(502).json({ error: "AI request failed. Falling back to rule-based reply." });
   }
 });
-
-function buildFeedbackPrompt(resumeText, analysis, jdMatch) {
-  return [
-    "You are a career coach reviewing a resume. Be specific, encouraging but honest, and concrete.",
-    "Here is a rule-based analysis already computed for this resume:",
-    JSON.stringify(analysis, null, 2),
-    jdMatch ? `\nJob description keyword match data:\n${JSON.stringify(jdMatch, null, 2)}` : "",
-    "\nHere is the raw resume text:\n---\n" + resumeText.slice(0, 6000) + "\n---",
-    "\nWrite 3-5 short, specific, personalized improvement suggestions referencing actual content from the resume. Keep it under 200 words. Do not just repeat the scores back.",
-  ].join("\n");
-}
-
-function buildChatSystemContext(analysis, jdMatch) {
-  return [
-    "You are a helpful, concise resume-improvement assistant embedded in a web app.",
-    "Ground every answer in the data below — don't invent details about the resume you weren't given.",
-    `Rule-based analysis: ${JSON.stringify(analysis)}`,
-    jdMatch ? `Job description match data: ${JSON.stringify(jdMatch)}` : "No job description has been provided yet.",
-    "Answer in 2-4 sentences unless the user asks for more detail.",
-  ].join("\n");
-}
 
 app.listen(PORT, () => {
   console.log(`Resume Analyzer API listening on http://localhost:${PORT}`);

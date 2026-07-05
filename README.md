@@ -25,7 +25,13 @@ src/
     aiClient.js          # frontend -> backend AI calls
   components/            # UI panels
 server/
-  index.js               # Express API: /api/feedback, /api/chat, /api/health
+  index.js               # Express API for local dev: /api/feedback, /api/chat, /api/health
+api/
+  health.js              # Vercel serverless equivalent of the health route
+  feedback.js            # Vercel serverless equivalent of /api/feedback
+  chat.js                # Vercel serverless equivalent of /api/chat
+shared/
+  promptBuilders.js      # prompt logic shared by server/index.js and api/*.js
 ```
 
 ## Running it
@@ -68,9 +74,32 @@ Gemini responses — no frontend code changes needed.
 npm run build
 npm run preview
 ```
-Note: production hosting needs the Express backend deployed separately
-(or converted to serverless functions) if you want live AI in production —
-`vite build` only builds the static frontend.
+
+## Deploying to Vercel (with live AI)
+This repo includes both a local Express server (`server/index.js`, used by
+`npm run dev:full`) **and** equivalent Vercel Serverless Functions in `/api`
+(`api/health.js`, `api/feedback.js`, `api/chat.js`) that share the same
+prompt logic from `shared/promptBuilders.js`. Vercel auto-detects the `/api`
+folder, so no extra config is needed for routing.
+
+To deploy with live Gemini AI:
+1. Push this repo to GitHub (already done if you're reading this on GitHub).
+2. Import the repo into Vercel (vercel.com → New Project → import from GitHub).
+3. Vercel auto-detects the Vite framework — leave build settings as default.
+4. Before or after the first deploy, go to **Project Settings → Environment
+   Variables** and add:
+   ```
+   GEMINI_API_KEY = your_free_key_from_aistudio.google.com
+   GEMINI_MODEL   = gemini-2.5-flash
+   ```
+   (Do **not** rely on `.env` — it's gitignored and never gets deployed.
+   Vercel injects these as real environment variables at runtime.)
+5. Redeploy (Vercel does this automatically after saving env vars, or trigger
+   manually from the Deployments tab).
+
+Once deployed, `yourapp.vercel.app/api/health` should return
+`{"ok":true,"aiConfigured":true}`, and the AI Feedback panel + chatbot will
+show live Gemini responses instead of the rule-based fallback.
 
 ## Tech stack
 React 19, Vite, Tailwind CSS v4, recharts, lucide-react, pdfjs-dist,

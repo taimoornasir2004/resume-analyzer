@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+
+  --color-bg: #0f1417;
+  --color-panel: #171d21;
+  --color-panel-raised: #1d2429;
+  --color-border: #262e33;
+  --color-border-soft: #1e252a;
+  --color-text: #e8ecee;
+  --color-muted: #8a969c;
+  --color-faint: #5c666b;
+  --color-scan: #ff8a3d;
+  --color-scan-dim: #ff8a3d33;
+  --color-good: #4fd1c5;
+  --color-warn: #f2c94c;
+  --color-bad: #e5484d;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-scan-dim);
+  color: var(--color-text);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* scanline sweep */
+@keyframes sweep {
+  0% { transform: translateY(-4%); }
+  50% { transform: translateY(104%); }
+  100% { transform: translateY(-4%); }
+}
+
+.scanline {
+  animation: sweep 3.2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanline { animation: none; }
+  .cursor-blink { animation: none; }
+}
+
+/* thin scrollbar for terminal panels */
+.thin-scroll::-webkit-scrollbar { width: 6px; }
+.thin-scroll::-webkit-scrollbar-track { background: transparent; }
+.thin-scroll::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
